@@ -27,6 +27,7 @@
         "spatie/laravel-package-tools": "^1.11"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
         "mockery/mockery": "^1.4.3",
         "orchestra/testbench": "^6.19|^7.0|^8.0|^10.0|^11.0",
         "pestphp/pest": "^1.22|^2.0|^3.0|^4.0",
