@@ -26,8 +26,13 @@ class WebhookCall
 
     private array $payload = [];
 
-    private $signWebhook = true;
+    private bool $signWebhook = true;
 
+    /**
+     * @throws InvalidBackoffStrategy
+     * @throws InvalidWebhookJob
+     * @throws InvalidSigner
+     */
     public static function create(): self
     {
         $config = config('webhook-server');
@@ -83,6 +88,11 @@ class WebhookCall
         return $this->uuid;
     }
 
+    public function getUrl(): string
+    {
+        return $this->callWebhookJob->webhookUrl;
+    }
+
     public function onQueue(?string $queue): self
     {
         $this->callWebhookJob->queue = $queue;
@@ -128,6 +138,9 @@ class WebhookCall
         return $this;
     }
 
+    /**
+     * @throws InvalidBackoffStrategy
+     */
     public function useBackoffStrategy(string $backoffStrategyClass): self
     {
         if (! is_subclass_of($backoffStrategyClass, BackoffStrategy::class)) {
@@ -146,6 +159,9 @@ class WebhookCall
         return $this;
     }
 
+    /**
+     * @throws InvalidSigner
+     */
     public function signUsing(string $signerClass): self
     {
         if (! is_subclass_of($signerClass, Signer::class)) {
@@ -213,6 +229,9 @@ class WebhookCall
         return $this;
     }
 
+    /**
+     * @throws InvalidWebhookJob
+     */
     public function useJob(string $webhookJobClass): self
     {
         $job = app($webhookJobClass);
@@ -233,6 +252,9 @@ class WebhookCall
         return $this;
     }
 
+    /**
+     * @throws CouldNotCallWebhook
+     */
     public function dispatch(): PendingDispatch
     {
         $this->prepareForDispatch();
@@ -250,6 +272,9 @@ class WebhookCall
         return dispatch($this->callWebhookJob);
     }
 
+    /**
+     * @throws CouldNotCallWebhook
+     */
     public function dispatchIf($condition): PendingDispatch|null
     {
         if ($condition) {
@@ -259,11 +284,17 @@ class WebhookCall
         return null;
     }
 
+    /**
+     * @throws CouldNotCallWebhook
+     */
     public function dispatchUnless($condition): PendingDispatch|null
     {
         return $this->dispatchIf(! $condition);
     }
 
+    /**
+     * @throws CouldNotCallWebhook
+     */
     public function dispatchSync(): void
     {
         $this->prepareForDispatch();
@@ -271,6 +302,9 @@ class WebhookCall
         dispatch_sync($this->callWebhookJob);
     }
 
+    /**
+     * @throws CouldNotCallWebhook
+     */
     public function dispatchSyncIf($condition): void
     {
         if ($condition) {
@@ -278,6 +312,9 @@ class WebhookCall
         }
     }
 
+    /**
+     * @throws CouldNotCallWebhook
+     */
     public function dispatchSyncUnless($condition): void
     {
         $this->dispatchSyncIf(! $condition);
@@ -291,6 +328,9 @@ class WebhookCall
         return $this;
     }
 
+    /**
+     * @throws CouldNotCallWebhook
+     */
     protected function prepareForDispatch(): void
     {
         if (! $this->callWebhookJob->webhookUrl) {

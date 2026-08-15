@@ -1,5 +1,7 @@
 <?php
 
+namespace Spatie\WebhookServer\Tests;
+
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use function PHPUnit\Framework\assertTrue;
@@ -9,7 +11,6 @@ use Spatie\WebhookServer\Exceptions\CouldNotCallWebhook;
 use Spatie\WebhookServer\Exceptions\InvalidBackoffStrategy;
 use Spatie\WebhookServer\Exceptions\InvalidSigner;
 use Spatie\WebhookServer\Exceptions\InvalidWebhookJob;
-
 use Spatie\WebhookServer\WebhookCall;
 
 beforeEach(function () {

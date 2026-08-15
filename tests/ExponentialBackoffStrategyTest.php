@@ -1,5 +1,7 @@
 <?php
 
+namespace Spatie\WebhookServer\Tests;
+
 use Spatie\WebhookServer\BackoffStrategy\ExponentialBackoffStrategy;
 
 it('can return the wait in seconds after a certain attempts', function () {

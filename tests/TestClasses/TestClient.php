@@ -2,25 +2,20 @@
 
 namespace Spatie\WebhookServer\Tests\TestClasses;
 
-use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Assert;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class TestClient implements ClientInterface
+class TestClient
 {
     protected array $requests = [];
 
-    protected int $useResponseCode = 200;
+    public function fake(): void
+    {
 
-    protected bool $throwRequestException = false;
-
-    protected bool $throwConnectionException = false;
+    }
 
     public function request(string $method, $url = '', array $options = []): ResponseInterface
     {
@@ -44,37 +39,8 @@ class TestClient implements ClientInterface
         return new Response($this->useResponseCode);
     }
 
-    public function assertRequestCount(int $expectedCount)
-    {
-        Assert::assertCount($expectedCount, $this->requests);
-
-        return $this;
-    }
-
     public function assertRequestsMade(array $expectedRequests)
     {
-        $this->assertRequestCount(count($expectedRequests));
-
-        foreach ($expectedRequests as $index => $expectedRequest) {
-            foreach ($expectedRequest as $name => $value) {
-                if ($name === 'options') {
-                    $expectedOptions = $value;
-                    $actualOptions = $this->requests[$index][$name];
-
-                    // Compare closures by checking they are both callable
-                    foreach ($expectedOptions as $key => $option) {
-                        if ($option instanceof \Closure) {
-                            Assert::assertInstanceOf(\Closure::class, $actualOptions[$key]);
-                            unset($expectedOptions[$key], $actualOptions[$key]);
-                        }
-                    }
-
-                    Assert::assertEquals($expectedOptions, $actualOptions);
-                } else {
-                    Assert::assertEquals($value, $this->requests[$index][$name]);
-                }
-            }
-        }
     }
 
     public function letEveryRequestFail()
@@ -90,25 +56,5 @@ class TestClient implements ClientInterface
     public function throwConnectionException()
     {
         $this->throwConnectionException = true;
-    }
-
-    public function send(RequestInterface $request, array $options = []): ResponseInterface
-    {
-        throw new \BadMethodCallException('Not meant to be used yet.');
-    }
-
-    public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
-    {
-        throw new \BadMethodCallException('Not meant to be used yet.');
-    }
-
-    public function requestAsync(string $method, $uri, array $options = []): PromiseInterface
-    {
-        throw new \BadMethodCallException('Not meant to be used yet.');
-    }
-
-    public function getConfig(?string $option = null)
-    {
-        throw new \BadMethodCallException('Not meant to be used yet.');
     }
 }

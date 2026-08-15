@@ -1,5 +1,7 @@
 <?php
 
+namespace Spatie\WebhookServer\Tests;
+
 use Spatie\WebhookServer\Signer\DefaultSigner;
 
 it('can calculate a signature for a given payload and secret', function () {
