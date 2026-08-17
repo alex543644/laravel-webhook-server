@@ -2,87 +2,46 @@
 
 namespace Spatie\WebhookServer\Tests;
 
-use GuzzleHttp\TransferStats;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
-use JsonException;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Spatie\WebhookServer\WebhookCall;
 use Spatie\WebhookServer\WebhookServerServiceProvider;
 
 class TestCase extends Orchestra
 {
+    /** The Guzzle options of every request that was sent, in the order they were sent. */
+    public array $sentOptions = [];
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->setUpDatabase();
-    }
 
-    public function createBaseWebhook(): WebhookCall
-    {
-        return WebhookCall::create()
-            ->url('https://example.com/webhooks')
-            ->useSecret('abc')
-            ->payload(['a' => 1]);
-    }
-
-    protected function getSharedRequestHeaders(): array
-    {
-        return [
-            'Content-Length' => '7',
-            'User-Agent' => 'GuzzleHttp/7',
-            'Host' => 'example.com',
-            'Content-Type' => 'application/json',
-            'Signature' => '1f14a62b15ba5095326d6c75c3e2e6b462dd71e1c4b7fbdac0f32309adb7be5f',
-        ];
-    }
-
-    public function createBaseGetRequest(array $overrides = []): array
-    {
-        $headers = $this->getSharedRequestHeaders();
-        /**
-         * GET requests do not have a body, so this
-         * header is not needed here. The Laravel Http client
-         * removes it automatically either way.
-         * */
-        unset($headers['Content-Length']);
-
-        $defaultProperties = [
-            'method' => 'get',
-            'url' => 'https://example.com/webhooks',
-            'options' => [
-                'timeout' => 3,
-                'query' => ['a' => '1'],
-                'verify' => true,
-                'headers' => $headers,
-                'on_stats' => function (TransferStats $stats) {
-                },
-            ],
-        ];
-
-        return array_replace_recursive($defaultProperties, $overrides);
+        Http::preventStrayRequests();
     }
 
     /**
-     * @throws JsonException
+     * Fake the webhook endpoint and record the Guzzle options of every request. Those options
+     * carry everything the request is configured with beyond headers and body: the timeout,
+     * the certificates, the proxy and the SSL verification settings.
      */
-    public function createBaseRequest(array $overrides = []): array
+    public function fakeWebhookEndpoint(int $status = 200): void
     {
-        $defaultProperties = [
-            'method' => 'post',
-            'url' => 'https://example.com/webhooks',
-            'options' => [
-                'timeout' => 3,
-                'body' => json_encode(['a' => 1], JSON_THROW_ON_ERROR),
-                'verify' => true,
-                'headers' => $this->getSharedRequestHeaders(),
-                'on_stats' => function (TransferStats $stats) {
-                },
-            ],
-        ];
+        Http::fake([
+            '*' => function (Request $request, array $options) use ($status) {
+                $this->sentOptions[] = $options;
 
-        return array_replace_recursive($defaultProperties, $overrides);
+                return Http::response(status: $status);
+            },
+        ]);
+    }
+
+    public function sentOptions(int $index = 0): array
+    {
+        return $this->sentOptions[$index];
     }
 
     protected function getPackageProviders($app): array

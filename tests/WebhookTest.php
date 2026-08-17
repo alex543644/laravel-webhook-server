@@ -1,7 +1,5 @@
 <?php
 
-namespace Spatie\WebhookServer\Tests;
-
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use function PHPUnit\Framework\assertTrue;

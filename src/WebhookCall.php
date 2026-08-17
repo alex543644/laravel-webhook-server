@@ -83,7 +83,7 @@ class WebhookCall
         return $this->uuid;
     }
 
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return $this->callWebhookJob->webhookUrl;
     }
