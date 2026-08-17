@@ -29,7 +29,7 @@ We highly appreciate you sending us a postcard from your hometown, mentioning wh
 
 ## Installation
 
-This package requires PHP 8.4 and Laravel 13. Use [v3](https://github.com/spatie/laravel-webhook-server/tree/v3) if you are on an older version.
+This package requires PHP 8.4 and Laravel 13. Use [v3](https://github.com/spatie/laravel-webhook-server/tree/3.10.0) if you are on an older version.
 
 You can install the package via composer:
 
